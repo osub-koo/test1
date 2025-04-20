@@ -1,0 +1,141 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>색각 검사</title>
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 1em;
+      text-align: center;
+      background: #f0f4f8;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .test-img {
+      width: 80%;
+      max-width: 300px;
+      margin: 1em auto;
+    }
+    input {
+      padding: 0.5em;
+      font-size: 1.2em;
+      width: 80px;
+      text-align: center;
+    }
+    button {
+      padding: 0.7em 1.2em;
+      font-size: 1em;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      margin-top: 1em;
+    }
+    #result {
+      font-size: 1.2em;
+      margin-top: 1em;
+      font-weight: bold;
+    }
+</style>
+</head>
+<body>
+<h1>색각 검사</h1>
+<p>아래 이미지에 보이는 숫자를 입력해 주세요.</p>
+<img alt="색각 테스트 이미지" class="test-img" id="plateImage" src="https://i.imgur.com/W8IqFoH.jpg"/>
+<br/>
+<input id="userAnswer" placeholder="숫자입력" type="number"/>
+<br/>
+<button onclick="checkAnswer()">제출</button>
+<div id="result"></div>
+
+<div id="summary" style="display:none; margin-top: 2em;">
+<h2>검사 결과</h2>
+<p id="diagnosis">색각 이상 여부를 분석 중입니다...</p>
+<hr/>
+<h3>대표적인 색약의 종류</h3>
+<ul style="text-align: left; max-width: 600px; margin: 0 auto;">
+<li><strong>✅ 1. 적색약 (Protanomaly / Protanopia)</strong><br/>
+      Protanomaly: 적색을 덜 민감하게 인식함<br/>
+      Protanopia: 적색 수용체 없음 → 적색과 녹색 구분 어려움<br/>
+      특징: 빨간색이 검게 보이거나 녹색과 혼동됨</li><br/>
+<li><strong>✅ 2. 녹색약 (Deuteranomaly / Deuteranopia)</strong><br/>
+      Deuteranomaly: 녹색을 덜 민감하게 인식함<br/>
+      Deuteranopia: 녹색 수용체 없음<br/>
+      특징: 빨간색과 녹색의 구분이 어려움, 가장 흔한 형태</li><br/>
+<li><strong>✅ 3. 청색약 (Tritanomaly / Tritanopia)</strong><br/>
+      Tritanomaly: 청색을 덜 민감하게 인식함 (매우 드묾)<br/>
+      Tritanopia: 청색 수용체 없음<br/>
+      특징: 파란색과 노란색의 구분이 어려움</li><br/>
+<li><strong>✅ 4. 전색맹 (Achromatopsia)</strong><br/>
+      특징: 모든 색을 구별하지 못하고 흑백 또는 회색으로만 인식<br/>
+      매우 드문 증상으로, 광과민증과 시력 저하 동반</li>
+</ul>
+<p style="font-style: italic;">※ 색각 이상은 선천성 또는 후천성으로 발생할 수 있으며, 남성에게 더 흔합니다.</p>
+</div>
+
+<script>
+    const testData = [
+      { src: "https://i.imgur.com/W8IqFoH.jpg", answer: 12 },
+      { src: "https://i.imgur.com/iyOWaJ5.jpg", answer: 74 },
+      { src: "https://i.imgur.com/gaPgcY9.jpg", answer: 3 },
+      { src: "https://i.imgur.com/nko2MMG.jpg", answer: 16 },
+      { src: "https://i.imgur.com/CI2kWsV.jpg", answer: 29 },
+      { src: "https://i.imgur.com/2fUVnV3.jpg", answer: 7 },
+      { src: "https://i.imgur.com/vv5tM3f.jpg", answer: 5 },
+      { src: "https://i.imgur.com/Ox8n61Q.jpg", answer: 8 },
+      { src: "https://i.imgur.com/wRxlxgK.jpg", answer: 42 }
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    function checkAnswer() {
+      const userInput = document.getElementById("userAnswer").value;
+      const resultEl = document.getElementById("result");
+      const correctAnswer = testData[current].answer;
+
+      if (parseInt(userInput) === correctAnswer) {
+        resultEl.textContent = "정답입니다!";
+        resultEl.style.color = "green";
+        score++;
+      } else {
+        resultEl.textContent = "틀렸습니다.";
+        resultEl.style.color = "red";
+      }
+
+      setTimeout(() => {
+        current++;
+        if (current < testData.length) {
+          document.getElementById("plateImage").src = testData[current].src;
+          document.getElementById("userAnswer").value = "";
+          resultEl.textContent = "";
+        } else {
+          resultEl.textContent = "검사가 완료되었습니다!";
+          document.getElementById("userAnswer").style.display = "none";
+          document.getElementById("summary").style.display = "block";
+
+          let diagnosisText = "";
+
+          if (score === testData.length) {
+            diagnosisText = "정상 색각으로 보입니다.";
+          } else if (score >= 6) {
+            diagnosisText = "경미한 색각 이상이 의심됩니다. 적록 색약(Protanomaly 또는 Deuteranomaly)의 가능성이 있습니다.";
+          } else if (score >= 3) {
+            diagnosisText = "중등도의 색각 이상이 의심됩니다. 적색약 또는 녹색약의 가능성이 높습니다.";
+          } else if (score === 0) {
+            diagnosisText = "전색맹(Achromatopsia) 가능성이 있습니다.";
+          } else {
+            diagnosisText = "심한 색각 이상이 의심됩니다. 전문적인 검사가 필요합니다.";
+          }
+
+          document.getElementById("diagnosis").textContent = diagnosisText;
+        }
+      }, 1500);
+    }
+</script>
+</body>
+</html>
